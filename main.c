@@ -42,14 +42,13 @@ task_t dequeueTask(){
     return task;
 }
 
-void executeTask(task_t task){
+void executeTask(task_t *task){
     if (mode == ENCRYPTION){
-        encrypt(task.data, key);
+        encrypt(task->data, key);
     } else if (mode == DECRYPTION){
-        decrypt(task.data, key);
+        decrypt(task->data, key);
     }
-    printf("%s", task.data);
-    fflush(stdin);
+    printf("%s", task->data);
 }
 
 void* startThread(void *args){
@@ -59,26 +58,25 @@ void* startThread(void *args){
         pthread_mutex_lock(&mutexQueue);
 
         while (taskCount == 0){
+            if (taskQueue == NULL){
+                pthread_mutex_unlock(&mutexQueue);
+                return NULL;
+            }
             pthread_cond_wait(&condQueue, &mutexQueue);
         }
 
         task = dequeueTask();
-        if (task.empty){
-            return NULL;
-        }
-
-        printf("Task count %i. Executing task %s.\n", taskCount, task.data);
 
         pthread_mutex_unlock(&mutexQueue);
 
-        executeTask(task);
+        executeTask(&task);
     }
 }
 
 int main(int argc, char *argv[]){
 
     if (argc != 3){
-	    perror("usage: \"key [-e/-d]\"\n");
+	    perror("usage: \"key [-e/-d] < [FILENAME]\"\n");
 	    return 1;
 	}
     if (!strcmp(argv[2], "-e")){
@@ -86,7 +84,7 @@ int main(int argc, char *argv[]){
     } else if (!strcmp(argv[2], "-d")){
         mode = DECRYPTION;
     } else {
-        perror("usage: \"key [-e/-d]\"\n");
+        perror("usage: \"key [-e/-d] < [FILENAME]\"\n");
 	    return 1;
     }
 
@@ -125,6 +123,10 @@ int main(int argc, char *argv[]){
         if (pthread_create(&th[i], NULL, &startThread, NULL) != 0){
             perror("Failed to create the thread");
         }
+    }
+
+    for (i = 0; i < THREAD_NUM; i++){
+        pthread_cond_signal(&condQueue);
     }
 
     for (i = 0; i < THREAD_NUM; i++){

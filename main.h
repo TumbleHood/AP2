@@ -3,9 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-#define THREAD_NUM 10
-#define TASK_SIZE 4
+#define THREAD_NUM 100
+#define TASK_SIZE 100
 
 #define ENCRYPTION 0
 #define DECRYPTION 1
@@ -24,7 +25,7 @@ typedef struct task_queue {
 
 void enqueueTask(task_t task);
 task_t dequeueTask();
-void executeTask(task_t task);
+void executeTask(task_t *task);
 void* startThread(void *args);
 
 task_queue_t *taskQueue = NULL;
