@@ -18,19 +18,17 @@ void enqueueTask(task_t task){
     taskCount++;
 }
 
-task_t dequeueTask(){
-    
+task_t* dequeueTask(){
     if (taskQueue == NULL){
-        task_t emptyTask;
-        return emptyTask;
+        return NULL;
     }
 
-    task_t task = taskQueue->val;
+    task_t *task = &(taskQueue->val);
 
     task_queue_t *toDelete = taskQueue;
     taskQueue = taskQueue->next;
 
-    free(toDelete);
+    // free(toDelete);
 
     taskCount--;
 
@@ -43,12 +41,12 @@ void executeTask(task_t *task){
     } else if (mode == DECRYPTION){
         decrypt(task->data, key);
     }
-    printf("%s\n", task->data);
+    // printf("%s", task->data);
 }
 
 void* startThread(void *args){
-    for (EVER){
-        task_t task;
+    for (EVER){ // I find that funny
+        task_t *task;
 
         pthread_mutex_lock(&mutexQueue);
 
@@ -61,15 +59,15 @@ void* startThread(void *args){
         }
         
         task = dequeueTask();
+        // printf("taskCount: %i\n", taskCount);
 
         pthread_mutex_unlock(&mutexQueue);
 
-        executeTask(&task);
+        executeTask(task);
     }
 }
 
 int main(int argc, char *argv[]){
-
     if (argc != 3){
 	    perror("usage: \"key [-e/-d] < [FILENAME]\"\n");
 	    return 1;
@@ -108,6 +106,8 @@ int main(int argc, char *argv[]){
         enqueueTask(task);
 	}
 
+    task_queue_t *printQueue = taskQueue;
+
     pthread_t th[THREAD_NUM];
     pthread_mutex_init(&mutexQueue, NULL);
     pthread_cond_init(&condQueue, NULL);
@@ -131,6 +131,11 @@ int main(int argc, char *argv[]){
 
     pthread_mutex_destroy(&mutexQueue);
     pthread_cond_destroy(&condQueue);
+
+    while (printQueue != NULL){
+        printf("%s", printQueue->val.data);
+        printQueue = printQueue->next;
+    }
 
     return 0;
 }
