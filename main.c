@@ -1,8 +1,6 @@
 #include "main.h"
 
 void enqueueTask(task_t task){
-    pthread_mutex_lock(&mutexQueue);
-
     task_queue_t *newTask = malloc(sizeof(task_queue_t));
     newTask->val = task;
     newTask->next = NULL;
@@ -18,15 +16,12 @@ void enqueueTask(task_t task){
     }
 
     taskCount++;
-
-    pthread_mutex_unlock(&mutexQueue);
-    pthread_cond_signal(&condQueue);
 }
 
 task_t dequeueTask(){
+    
     if (taskQueue == NULL){
         task_t emptyTask;
-        emptyTask.empty = 1;
         return emptyTask;
     }
 
@@ -48,7 +43,7 @@ void executeTask(task_t *task){
     } else if (mode == DECRYPTION){
         decrypt(task->data, key);
     }
-    printf("%s", task->data);
+    printf("%s\n", task->data);
 }
 
 void* startThread(void *args){
@@ -64,7 +59,7 @@ void* startThread(void *args){
             }
             pthread_cond_wait(&condQueue, &mutexQueue);
         }
-
+        
         task = dequeueTask();
 
         pthread_mutex_unlock(&mutexQueue);
@@ -94,7 +89,6 @@ int main(int argc, char *argv[]){
     int counter = 0;
     char data[TASK_SIZE];
     task_t task;
-    task.empty = 0;
 
     while ((c = getchar()) != EOF){
 	    data[counter] = c;

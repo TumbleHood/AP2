@@ -8,7 +8,7 @@ stdinExample:	codec.h stdin_main.c
 		gcc stdin_main.c -L. -l Codec -o tester
 
 main: main.c main.h codec.h
-	gcc main.c -L. -l Codec -o main -lpthread
+	gcc main.c -L. -l Codec -o main -pthread -Wl,-rpath=/root/projects/AP2/
 
 .PHONY: clean
 clean:

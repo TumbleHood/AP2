@@ -14,7 +14,6 @@
 #define EVER ;;
 
 typedef struct task {
-    int empty;
     char data[TASK_SIZE+1];
 } task_t;
 
