@@ -1,4 +1,4 @@
-#include "main.h"
+#include "coder.h"
 
 void enqueueTask(task_t task){
     task_queue_t *newTask = malloc(sizeof(task_queue_t));
@@ -28,8 +28,6 @@ task_t* dequeueTask(){
     task_queue_t *toDelete = taskQueue;
     taskQueue = taskQueue->next;
 
-    // free(toDelete);
-
     taskCount--;
 
     return task;
@@ -58,7 +56,6 @@ void* startThread(void *args){
         }
         
         task = dequeueTask();
-        // printf("taskCount: %i\n", taskCount);
 
         pthread_mutex_unlock(&mutexQueue);
 
