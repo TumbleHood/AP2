@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define THREAD_NUM 128
+#define THREAD_NUM 16
 #define TASK_SIZE 1024
 
 #define ENCRYPTION 0
